@@ -2,6 +2,8 @@ package com.tutorial.identity.service;
 
 import com.tutorial.identity.dto.request.StaffCreationRequest;
 import com.tutorial.identity.entity.Staff;
+import com.tutorial.identity.exception.AppException;
+import com.tutorial.identity.exception.Errorcode;
 import com.tutorial.identity.mapper.StaffMapper;
 import com.tutorial.identity.repository.StaffRepository;
 import jakarta.transaction.Transactional;
@@ -25,14 +27,23 @@ public class StaffService {
         return staffRepository.findAll();
     }
     public Staff getStaffById(String id){
+        if(!staffRepository.existsStaffById(id)){
+            throw new AppException(Errorcode.USER_NOTFOUND);
+        }
         return staffRepository.getStaffById(id);
     }
     @Transactional
     public Staff createStaff(StaffCreationRequest staffCreationRequest){
+        if(staffRepository.existsStaffByUserName(staffCreationRequest.getUserName())){
+            throw new AppException(Errorcode.USER_EXISTED);
+        }
         return staffRepository.save(staffMapper.toStaff(staffCreationRequest));
     }
     @Transactional
     public Staff updateStaff(String id, StaffCreationRequest staffCreationRequest){
+        if(!staffRepository.existsStaffById(id)){
+            throw new AppException(Errorcode.USER_NOTFOUND);
+        }
         Staff staff = staffRepository.getStaffById(id);
         staff.setFullName(staffCreationRequest.getFullName());
         staff.setDob(staffCreationRequest.getDob());
@@ -42,6 +53,9 @@ public class StaffService {
     }
     @Transactional
     public void deleteStaff(String id){
+        if(!staffRepository.existsStaffById(id)){
+            throw new AppException(Errorcode.USER_NOTFOUND);
+        }
         staffRepository.deleteStaffById(id);
     }
 }

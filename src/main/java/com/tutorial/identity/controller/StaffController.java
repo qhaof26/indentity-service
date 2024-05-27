@@ -1,11 +1,13 @@
 package com.tutorial.identity.controller;
 
 import com.tutorial.identity.dto.request.StaffCreationRequest;
+import com.tutorial.identity.dto.response.ApiResponse;
 import com.tutorial.identity.dto.response.StaffResponse;
-import com.tutorial.identity.entity.Staff;
 import com.tutorial.identity.mapper.StaffMapper;
 import com.tutorial.identity.service.StaffService;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
@@ -31,22 +33,26 @@ public class StaffController {
     }
     // Read 1 staff
     @GetMapping("/{id}")
-    public StaffResponse getStaffById(@PathVariable String id){
-        return staffMapper.toStaffResponse(staffService.getStaffById(id));
+    public ApiResponse<StaffResponse> getStaffById(@PathVariable String id){
+        return new ApiResponse<>(200, "Get staff success !", staffMapper.toStaffResponse(staffService.getStaffById(id)));
     }
     // Create staff
     @PostMapping("/add")
-    public StaffResponse newStaff(@RequestBody StaffCreationRequest staffCreationRequest){
-        return staffMapper.toStaffResponse(staffService.createStaff(staffCreationRequest));
+    public ApiResponse<StaffResponse> newStaff(@RequestBody @Valid StaffCreationRequest staffCreationRequest){
+        return new ApiResponse<>(200, "Create staff success !", staffMapper.toStaffResponse(staffService.createStaff(staffCreationRequest)));
     }
     // Update staff
     @PutMapping("/{id}")
-    public StaffResponse updateStaff(@PathVariable String id, @RequestBody StaffCreationRequest staffCreationRequest){
-        return staffMapper.toStaffResponse(staffService.updateStaff(id, staffCreationRequest));
+    public ApiResponse<StaffResponse> updateStaff(@PathVariable String id, @RequestBody @Valid StaffCreationRequest staffCreationRequest){
+        return new ApiResponse<>(200, "Updated Staff !", staffMapper.toStaffResponse(staffService.updateStaff(id, staffCreationRequest)));
     }
     // Delete staff
     @DeleteMapping("/{id}")
-    public void deleteStaff(@PathVariable String id){
+    public ResponseEntity<ApiResponse> deleteStaff(@PathVariable String id){
         staffService.deleteStaff(id);
+        ApiResponse apiResponse = new ApiResponse();
+        apiResponse.setCode(200);
+        apiResponse.setMessage("Deleted Staff !");
+        return ResponseEntity.ok().body(apiResponse);
     }
 }

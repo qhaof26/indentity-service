@@ -8,4 +8,6 @@ import org.springframework.stereotype.Repository;
 public interface StaffRepository extends JpaRepository<Staff, String> {
     Staff getStaffById(String id);
     void deleteStaffById(String id);
+    boolean existsStaffByUserName(String username);
+    boolean existsStaffById(String id);
 }

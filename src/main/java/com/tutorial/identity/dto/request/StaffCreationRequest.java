@@ -1,11 +1,15 @@
 package com.tutorial.identity.dto.request;
 
+import jakarta.validation.constraints.Size;
+
 import java.time.LocalDate;
 
 public class StaffCreationRequest {
     private String fullName;
     private LocalDate dob;
+    @Size(min = 5, message = "Username must be at least 5 character !")
     private String userName;
+    @Size(min = 4, message = "Password must be at least 4 character !")
     private String passWord;
 
     public String getFullName() {
