@@ -6,7 +6,7 @@ import com.tutorial.identity.dto.response.StaffResponse;
 import com.tutorial.identity.mapper.StaffMapper;
 import com.tutorial.identity.service.StaffService;
 import jakarta.validation.Valid;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -14,16 +14,12 @@ import java.util.ArrayList;
 import java.util.List;
 
 @RestController
+@RequiredArgsConstructor
 @RequestMapping("/staffs")
 public class StaffController {
     private final StaffService staffService;
     private final StaffMapper staffMapper;
 
-    @Autowired
-    public StaffController(StaffService staffService, StaffMapper staffMapper){
-        this.staffService = staffService;
-        this.staffMapper = staffMapper;
-    }
     // Read all staff
     @GetMapping
     public List<StaffResponse> getAllStaff(){

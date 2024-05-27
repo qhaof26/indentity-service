@@ -7,22 +7,18 @@ import com.tutorial.identity.exception.Errorcode;
 import com.tutorial.identity.mapper.StaffMapper;
 import com.tutorial.identity.repository.StaffRepository;
 import jakarta.transaction.Transactional;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 
 @Service
+@RequiredArgsConstructor
 public class StaffService {
     private final StaffRepository staffRepository;
 
     private final StaffMapper staffMapper;
 
-    @Autowired
-    public StaffService(StaffRepository staffRepository, StaffMapper staffMapper){
-        this.staffRepository = staffRepository;
-        this.staffMapper = staffMapper;
-    }
     public List<Staff> getAllStaff(){
         return staffRepository.findAll();
     }
