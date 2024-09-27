@@ -1,6 +1,7 @@
 package com.tutorial.identity.controller;
 
 import com.tutorial.identity.dto.request.AuthenticationRequest;
+import com.tutorial.identity.dto.request.IntrospectRequest;
 import com.tutorial.identity.dto.response.ApiResponse;
 import com.tutorial.identity.dto.response.AuthenticationResponse;
 import com.tutorial.identity.service.AuthenticationService;
@@ -18,11 +19,17 @@ public class AuthenticationController {
 
     @PostMapping("/log-in")
     public ApiResponse<AuthenticationResponse> login(@RequestBody AuthenticationRequest request){
-        AuthenticationResponse result = new AuthenticationResponse();
-        result.setAuthenticated(authenticationService.isAuthenticate(request));
-        if(result.isAuthenticated()){
-            return new ApiResponse<>(200, "Login success !", result);
-        }
-        return new ApiResponse<>(201, "Login fail !", result);
+        var result = authenticationService.isAuthenticate(request);
+        return ApiResponse.<AuthenticationResponse>builder()
+                .result(result)
+                .build();
     }
+
+//    @PostMapping("/introspect")
+//    public ApiResponse<AuthenticationResponse> login(@RequestBody IntrospectRequest request){
+//        //var result = authenticationService.isAuthenticate(request);
+//        return ApiResponse.<AuthenticationResponse>builder()
+//                .result(result)
+//                .build();
+//    }
 }

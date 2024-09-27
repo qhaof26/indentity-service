@@ -5,6 +5,7 @@ public enum Errorcode {
     USER_EXISTED(102, "Username existed !"),
     USERNAME_INVALID(103, "Username invalid !"),
     PASSWORD_INVALID(104, "Password invalid !"),
+    UNAUTHENTICATED(105, "Unauthenticated !")
     ;
     private int code;
     private String message;

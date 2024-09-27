@@ -33,7 +33,7 @@ public class StaffController {
         return new ApiResponse<>(200, "Get staff success !", staffMapper.toStaffResponse(staffService.getStaffById(id)));
     }
     // Create staff
-    @PostMapping("/add")
+    @PostMapping("")
     public ApiResponse<StaffResponse> newStaff(@RequestBody @Valid StaffCreationRequest staffCreationRequest){
         return new ApiResponse<>(200, "Create staff success !", staffMapper.toStaffResponse(staffService.createStaff(staffCreationRequest)));
     }
