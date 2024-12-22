@@ -33,7 +33,7 @@ public class AuthenticationService {
 
     @NonFinal
     @Value("${jwt.signerKey}")
-    protected  String SIGNER_KEY;
+    protected String SIGNER_KEY;
 
     public IntrospectResponse introspect(IntrospectRequest introspectRequest)
             throws JOSEException, ParseException {
@@ -48,7 +48,8 @@ public class AuthenticationService {
         var verified = signedJWT.verify(verifier);
 
         return IntrospectResponse.builder()
-                .valid(verified && expiryTime.after(new Date()))
+                .authenticated(verified && expiryTime.after(new Date()))
+                //.token(token)
                 .build();
     }
 
