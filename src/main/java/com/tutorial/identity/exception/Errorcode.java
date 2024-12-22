@@ -1,7 +1,7 @@
 package com.tutorial.identity.exception;
 
 public enum Errorcode {
-    USER_NOTFOUND(101, "User not found !"),
+    USER_NOTFOUND(1001, "User not found !"),
     USER_EXISTED(102, "Username existed !"),
     USERNAME_INVALID(103, "Username invalid !"),
     PASSWORD_INVALID(104, "Password invalid !"),

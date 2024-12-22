@@ -12,7 +12,10 @@ import com.tutorial.identity.dto.response.IntrospectResponse;
 import com.tutorial.identity.exception.AppException;
 import com.tutorial.identity.exception.Errorcode;
 import com.tutorial.identity.repository.StaffRepository;
+import com.tutorial.identity.repository.UserRepository;
+import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
+import lombok.experimental.FieldDefaults;
 import lombok.experimental.NonFinal;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -28,8 +31,9 @@ import java.util.Date;
 @Service
 @Slf4j
 @RequiredArgsConstructor
+@FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 public class AuthenticationService {
-    private final StaffRepository staffRepository;
+    UserRepository userRepository;
 
     @NonFinal
     @Value("${jwt.signerKey}")
@@ -54,11 +58,11 @@ public class AuthenticationService {
     }
 
     public AuthenticationResponse isAuthenticate(AuthenticationRequest request){
-        var staff = staffRepository.findStaffByUserName(request.getUserName())
+        var user = userRepository.findByUsername(request.getUserName())
                 .orElseThrow(()-> new AppException(Errorcode.USER_NOTFOUND));
 
         PasswordEncoder passwordEncoder = new BCryptPasswordEncoder(10);
-        boolean authenticated = passwordEncoder.matches(request.getPassWord(), staff.getPassWord());
+        boolean authenticated = passwordEncoder.matches(request.getPassWord(), user.getPassword());
 
         if(!authenticated){
             throw new AppException(Errorcode.UNAUTHENTICATED);
@@ -97,6 +101,5 @@ public class AuthenticationService {
             log.error("Cannot create token");
             throw new RuntimeException(exception);
         }
-
     }
 }
