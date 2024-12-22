@@ -24,12 +24,18 @@ public class StaffService {
     public List<Staff> getAllStaff(){
         return staffRepository.findAll();
     }
+
     public Staff getStaffById(String id){
         if(!staffRepository.existsStaffById(id)){
             throw new AppException(Errorcode.USER_NOTFOUND);
         }
         return staffRepository.getStaffById(id);
     }
+
+    public Staff handleGetStaffByUserName(String username){
+        return staffRepository.findStaffByUserName(username).orElseThrow(() -> new AppException(Errorcode.USER_NOTFOUND));
+    }
+
     @Transactional
     public Staff createStaff(StaffCreationRequest staffCreationRequest){
         if(staffRepository.existsStaffByUserName(staffCreationRequest.getUserName())){

@@ -4,6 +4,7 @@ import com.nimbusds.jose.*;
 import com.nimbusds.jose.crypto.MACSigner;
 import com.nimbusds.jose.crypto.MACVerifier;
 import com.nimbusds.jwt.JWTClaimsSet;
+import com.nimbusds.jwt.SignedJWT;
 import com.tutorial.identity.dto.request.AuthenticationRequest;
 import com.tutorial.identity.dto.request.IntrospectRequest;
 import com.tutorial.identity.dto.response.AuthenticationResponse;
@@ -14,11 +15,12 @@ import com.tutorial.identity.repository.StaffRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.NonFinal;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import java.nio.charset.StandardCharsets;
+import java.text.ParseException;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.Date;
@@ -30,17 +32,24 @@ public class AuthenticationService {
     private final StaffRepository staffRepository;
 
     @NonFinal
-    protected static final String SIGNER_KEY = "+Fua0PEGbJttzuhBFkrMyGyNMIGmqQhxaPAGDjRRiJiOuikiiNOBC6V+GtW/DifN";
+    @Value("${jwt.signerKey}")
+    protected  String SIGNER_KEY;
 
-    public IntrospectResponse introspect(IntrospectRequest introspectRequest){
+    public IntrospectResponse introspect(IntrospectRequest introspectRequest)
+            throws JOSEException, ParseException {
         var token = introspectRequest.getToken();
 
-        try{
-            JWSVerifier verifier = new MACVerifier(SIGNER_KEY.getBytes());
-        } catch (JOSEException exception){
-            throw new RuntimeException(exception);
-        }
-        return null;
+        JWSVerifier verifier = new MACVerifier(SIGNER_KEY.getBytes());
+
+        SignedJWT signedJWT = SignedJWT.parse(token);
+
+        Date expiryTime = signedJWT.getJWTClaimsSet().getExpirationTime();
+
+        var verified = signedJWT.verify(verifier);
+
+        return IntrospectResponse.builder()
+                .valid(verified && expiryTime.after(new Date()))
+                .build();
     }
 
     public AuthenticationResponse isAuthenticate(AuthenticationRequest request){
@@ -68,7 +77,7 @@ public class AuthenticationService {
         // Body: issuer-ai la nguoi dinh danh, expirationTime-thoi gian het han
         JWTClaimsSet jwtClaimsSet = new JWTClaimsSet.Builder()
                 .subject(username)  //username
-                .issuer("quoc hao")  //
+                .issuer("qhaofdev")  //
                 .issueTime(new Date())
                 .expirationTime(new Date(
                         Instant.now().plus(1, ChronoUnit.HOURS).toEpochMilli()
