@@ -1,18 +1,18 @@
 package com.tutorial.identity.exception;
 
 public class AppException extends RuntimeException{
-    private Errorcode errorcode;
+    private ErrorCode errorcode;
 
-    public AppException(Errorcode errorcode) {
+    public AppException(ErrorCode errorcode) {
         super(errorcode.getMessage());
         this.errorcode = errorcode;
     }
 
-    public Errorcode getErrorcode() {
+    public ErrorCode getErrorcode() {
         return errorcode;
     }
 
-    public void setErrorcode(Errorcode errorcode) {
+    public void setErrorcode(ErrorCode errorcode) {
         this.errorcode = errorcode;
     }
 }
