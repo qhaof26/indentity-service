@@ -13,10 +13,5 @@ spring:
       ddl-auto: update
     show-sql: true
 
-#identity:
-#  jwt:
-#    base64-secret: qoAEABDke07+AVLepXB4aCMtsT0wMAqR5x2VFyldsnx6e75YQkJH2UcZKTjEyoNgG71SBCXfq5N6NVZxWOfsHQ==
-#    token-validity-in-seconds: 86400
-
 jwt:
   signerKey: "1TjXchw5FloESb63Kc+DFhTARvpWL4jUGCwfGWxuG5SIf/1y/LgJxHnMqaF6A/ij"
