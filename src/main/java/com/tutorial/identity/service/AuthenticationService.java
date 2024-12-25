@@ -7,11 +7,14 @@ import com.nimbusds.jwt.JWTClaimsSet;
 import com.nimbusds.jwt.SignedJWT;
 import com.tutorial.identity.dto.request.AuthenticationRequest;
 import com.tutorial.identity.dto.request.IntrospectRequest;
+import com.tutorial.identity.dto.request.LogoutRequest;
 import com.tutorial.identity.dto.response.AuthenticationResponse;
 import com.tutorial.identity.dto.response.IntrospectResponse;
+import com.tutorial.identity.entity.InvalidatedToken;
 import com.tutorial.identity.entity.User;
 import com.tutorial.identity.exception.AppException;
 import com.tutorial.identity.exception.ErrorCode;
+import com.tutorial.identity.repository.InvalidatedTokenRepository;
 import com.tutorial.identity.repository.UserRepository;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
@@ -29,6 +32,7 @@ import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.Date;
 import java.util.StringJoiner;
+import java.util.UUID;
 
 @Service
 @Slf4j
@@ -36,7 +40,7 @@ import java.util.StringJoiner;
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 public class AuthenticationService {
     UserRepository userRepository;
-    PasswordEncoder passwordEncoder;
+    InvalidatedTokenRepository invalidatedTokenRepository;
 
     @NonFinal
     @Value("${jwt.signerKey}")
@@ -45,24 +49,36 @@ public class AuthenticationService {
     public IntrospectResponse introspect(IntrospectRequest introspectRequest)
             throws JOSEException, ParseException {
         var token = introspectRequest.getToken();
+        boolean isValid = true;
+        try {
+            verifyToken(token);
+        } catch (AppException e){
+            isValid = false;
+        }
+        return IntrospectResponse.builder()
+                .valid(isValid)
+                .build();
+    }
 
+    private SignedJWT verifyToken(String token) throws JOSEException, ParseException {
         JWSVerifier verifier = new MACVerifier(SIGNER_KEY.getBytes());
-
         SignedJWT signedJWT = SignedJWT.parse(token);
-
         Date expiryTime = signedJWT.getJWTClaimsSet().getExpirationTime();
-
         var verified = signedJWT.verify(verifier);
 
-        return IntrospectResponse.builder()
-                .authenticated(verified && expiryTime.after(new Date()))
-                .build();
+        if(!(verified && expiryTime.after(new Date()))){
+            throw new AppException(ErrorCode.UNAUTHENTICATED);
+        }
+        if(invalidatedTokenRepository.existsById(signedJWT.getJWTClaimsSet().getJWTID()))
+            throw new AppException(ErrorCode.UNAUTHENTICATED);
+
+        return signedJWT;
     }
 
     public AuthenticationResponse isAuthenticate(AuthenticationRequest request){
         var user = userRepository.findByUsername(request.getUserName())
                 .orElseThrow(()-> new AppException(ErrorCode.USER_NOT_EXISTED));
-
+        PasswordEncoder passwordEncoder = new BCryptPasswordEncoder(10);
         boolean authenticated = passwordEncoder.matches(request.getPassWord(), user.getPassword());
 
         if(!authenticated){
@@ -77,6 +93,18 @@ public class AuthenticationService {
                 .build();
     }
 
+    public void logout(LogoutRequest request) throws ParseException, JOSEException {
+        var signToken = verifyToken(request.getToken());
+        String jit = signToken.getJWTClaimsSet().getJWTID();
+        Date expiryTime = signToken.getJWTClaimsSet().getExpirationTime();
+
+        InvalidatedToken invalidatedToken = InvalidatedToken.builder()
+                .id(jit)
+                .expiryTime(expiryTime)
+                .build();
+        invalidatedTokenRepository.save(invalidatedToken);
+    }
+
     private String generateToken(User user){
         // Noi dung thuat toan
         JWSHeader header = new JWSHeader(JWSAlgorithm.HS512);
@@ -88,6 +116,7 @@ public class AuthenticationService {
                 .expirationTime(new Date(
                         Instant.now().plus(1, ChronoUnit.HOURS).toEpochMilli()
                 ))
+                .jwtID(UUID.randomUUID().toString())
                 .claim("scope", buildScope(user))
                 .build();
 
