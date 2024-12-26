@@ -8,6 +8,7 @@ import com.nimbusds.jwt.SignedJWT;
 import com.tutorial.identity.dto.request.AuthenticationRequest;
 import com.tutorial.identity.dto.request.IntrospectRequest;
 import com.tutorial.identity.dto.request.LogoutRequest;
+import com.tutorial.identity.dto.request.RefreshToken;
 import com.tutorial.identity.dto.response.AuthenticationResponse;
 import com.tutorial.identity.dto.response.IntrospectResponse;
 import com.tutorial.identity.entity.InvalidatedToken;
@@ -85,6 +86,30 @@ public class AuthenticationService {
             throw new AppException(ErrorCode.UNAUTHENTICATED);
         }
 
+        var token = generateToken(user);
+
+        return AuthenticationResponse.builder()
+                .token(token)
+                .isAuthenticated(true)
+                .build();
+    }
+
+    public AuthenticationResponse refreshToken(RefreshToken request)
+            throws ParseException, JOSEException {
+        var signedToken = verifyToken(request.getToken());
+
+        String jit = signedToken.getJWTClaimsSet().getJWTID();
+        Date expiryTime = signedToken.getJWTClaimsSet().getExpirationTime();
+        InvalidatedToken invalidatedToken = InvalidatedToken.builder()
+                .id(jit)
+                .expiryTime(expiryTime)
+                .build();
+        invalidatedTokenRepository.save(invalidatedToken);
+
+        String username = signedToken.getJWTClaimsSet().getSubject();
+        if(!userRepository.existsByUsername(username))
+            throw new AppException(ErrorCode.UNAUTHENTICATED);
+        User user = userRepository.findByUsername(username).orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED));
         var token = generateToken(user);
 
         return AuthenticationResponse.builder()
