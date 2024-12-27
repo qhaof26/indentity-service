@@ -7,6 +7,8 @@ import com.tutorial.identity.dto.response.ApiResponse;
 import com.tutorial.identity.dto.response.PageResponse;
 import com.tutorial.identity.dto.response.UserResponse;
 import com.tutorial.identity.service.UserService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
@@ -25,9 +27,11 @@ import java.util.List;
 @RequiredArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 @Slf4j
+@Tag(name = "User controller")
 public class UserController {
     UserService userService;
 
+    @Operation(summary = "Add user", description = "API create new user")
     @PostMapping
     ApiResponse<UserResponse> createUser(@RequestBody @Valid UserCreationRequest request){
         return ApiResponse.<UserResponse>builder()
@@ -35,6 +39,7 @@ public class UserController {
                 .build();
     }
 
+    @Operation(summary = "Fetch all user", description = "API fetch all user")
     @GetMapping
     ApiResponse<PageResponse<?>> getAllUser(
             @RequestParam(defaultValue = "1", required = false) int pageNo,
@@ -50,6 +55,7 @@ public class UserController {
                 .build();
     }
 
+    @Operation(summary = "Get my information", description = "API my information")
     @GetMapping("/myInfo")
     ApiResponse<UserResponse> getMyInfo(){
         return ApiResponse.<UserResponse>builder()
@@ -57,6 +63,7 @@ public class UserController {
                 .build();
     }
 
+    @Operation(summary = "Fetch user by id", description = "API fetch user by id")
     @GetMapping("/{userId}")
     ApiResponse<UserResponse> getUserById(@PathVariable("userId") String userId){
         return ApiResponse.<UserResponse>builder()
@@ -64,6 +71,7 @@ public class UserController {
                 .build();
     }
 
+    @Operation(summary = "Update user detail by id", description = "API update user by id")
     @PutMapping("/{userId}")
     ApiResponse<UserResponse> updateUser(@PathVariable String userId, @RequestBody UserUpdateRequest request){
         return ApiResponse.<UserResponse>builder()
@@ -71,6 +79,7 @@ public class UserController {
                 .build();
     }
 
+    @Operation(summary = "Delete user by id", description = "API delete user by id")
     @DeleteMapping("/{userId}")
     ApiResponse<String> deleteUser(@PathVariable String userId){
         userService.deleteUser(userId);
@@ -79,6 +88,7 @@ public class UserController {
                 .build();
     }
 
+    @Operation(summary = "Fake data user", description = "API fake data user")
     @PostMapping("/fake-data")
     public ResponseEntity<String> fakeData(){
         Faker faker = new Faker();
@@ -99,6 +109,7 @@ public class UserController {
         return ResponseEntity.ok("Added");
     }
 
+    @Operation(summary = "Search user by custom query", description = "API Search user by custom query")
     @GetMapping("/custom-query")
     ApiResponse<List<UserResponse>> testCustomQuery(
             @RequestParam(value = "firstName") String firstName
@@ -108,6 +119,7 @@ public class UserController {
                 .build();
     }
 
+    @Operation(summary = "Search user by specification", description = "API Search user by specification")
     @GetMapping("/search-multiple")
     ApiResponse<PageResponse<?>> searchUserBySpecification(
             @RequestParam(defaultValue = "1", required = false) int pageNo,

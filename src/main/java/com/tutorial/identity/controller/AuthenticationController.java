@@ -9,6 +9,7 @@ import com.tutorial.identity.dto.response.ApiResponse;
 import com.tutorial.identity.dto.response.AuthenticationResponse;
 import com.tutorial.identity.dto.response.IntrospectResponse;
 import com.tutorial.identity.service.AuthenticationService;
+import io.swagger.v3.oas.annotations.Operation;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -24,6 +25,7 @@ import java.text.ParseException;
 public class AuthenticationController {
     private final AuthenticationService authenticationService;
 
+    @Operation(summary = "Login by username & password", description = "API login")
     @PostMapping("/log-in")
     public ApiResponse<AuthenticationResponse> login(@RequestBody AuthenticationRequest request){
         var result = authenticationService.isAuthenticate(request);
@@ -33,6 +35,7 @@ public class AuthenticationController {
                 .build();
     }
 
+    @Operation(summary = "Logout", description = "API logout")
     @PostMapping("/logout")
     public ApiResponse<Void> logout(@RequestBody LogoutRequest request)
             throws ParseException, JOSEException {
@@ -41,6 +44,7 @@ public class AuthenticationController {
                 .build();
     }
 
+    @Operation(summary = "Refresh token", description = "API refresh token")
     @PostMapping("/refresh")
     public ApiResponse<AuthenticationResponse> refresh(@RequestBody RefreshToken request)
             throws ParseException, JOSEException {
@@ -51,6 +55,7 @@ public class AuthenticationController {
                 .build();
     }
 
+    @Operation(summary = "Introspect token", description = "API introspect token")
     @PostMapping("/introspect")
     ApiResponse<IntrospectResponse> authenticate(@RequestBody IntrospectRequest request)
             throws ParseException, JOSEException {

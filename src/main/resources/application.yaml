@@ -3,6 +3,20 @@ server:
   servlet:
     context-path: /identity
 
+springdoc:
+  api-docs:
+    enabled: true
+  swagger-ui:
+    enabled: true
+
+open:
+  api:
+    title: API document
+    version: v1.0.0
+    description: API service
+    serverUrl: http://localhost:8080
+    serverName: server test
+
 spring:
   datasource:
     url: "jdbc:mysql://localhost:3306/identity"
