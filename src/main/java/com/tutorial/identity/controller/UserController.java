@@ -6,6 +6,7 @@ import com.tutorial.identity.dto.request.UserUpdateRequest;
 import com.tutorial.identity.dto.response.ApiResponse;
 import com.tutorial.identity.dto.response.PageResponse;
 import com.tutorial.identity.dto.response.UserResponse;
+import com.tutorial.identity.service.UploadService;
 import com.tutorial.identity.service.UserService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -18,7 +19,9 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.time.ZoneId;
 import java.util.List;
 
@@ -30,12 +33,20 @@ import java.util.List;
 @Tag(name = "User controller")
 public class UserController {
     UserService userService;
-
+    UploadService uploadService;
     @Operation(summary = "Add user", description = "API create new user")
     @PostMapping
     ApiResponse<UserResponse> createUser(@RequestBody @Valid UserCreationRequest request){
         return ApiResponse.<UserResponse>builder()
                 .result(userService.createUser(request))
+                .build();
+    }
+
+    @Operation(summary = "Create profile", description = "API Create profile")
+    @PostMapping("/create-profile")
+    ApiResponse<String> uploadAvatar(@RequestParam("file")MultipartFile file) throws IOException {
+        return ApiResponse.<String>builder()
+                .result(uploadService.uploadImage(file))
                 .build();
     }
 

@@ -26,5 +26,9 @@ public class User {
 
     @ManyToMany
     Set<Role> roles;
+
+    @OneToOne(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @JoinColumn(name = "profile_id")
+    private Profile profile;
 }
 
